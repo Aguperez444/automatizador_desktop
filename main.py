@@ -8,7 +8,7 @@ import os
 
 # ----------------------------------------- Funciones ---------------------------------------------
 
-def abrir_ventana_alerta(parent_window, success, error_type=0):
+def open_alert_window(parent_window, success, error_type=0):
     def aceptar():
         alert_window.destroy()
         parent_window.focus_set()
@@ -18,7 +18,7 @@ def abrir_ventana_alerta(parent_window, success, error_type=0):
     monitors = get_monitors()
 
     window_width = monitors[1].width // 4
-    window_heigth = monitors[1].height // 6
+    window_height = monitors[1].height // 6
     window_x = monitors[1].x + monitors[1].x // 3
     window_y = monitors[1].y + monitors[1].y // 3
 
@@ -28,7 +28,7 @@ def abrir_ventana_alerta(parent_window, success, error_type=0):
     alert_window.title('alerta - Error')
     if success:
         alert_window.title('alerta - lanzador creado exitosamente')
-    alert_window.geometry(f'{window_width}x{window_heigth}+{window_x}+{window_y}')
+    alert_window.geometry(f'{window_width}x{window_height}+{window_x}+{window_y}')
     alert_window.focus_set()
     alert_window.grab_set()
     # alert_window.iconbitmap(parent_window.parent.icon_path)
@@ -74,29 +74,29 @@ def abrir_ventana_alerta(parent_window, success, error_type=0):
     alert_window.mainloop()
 
 
-def abrir_explorador(str_var):
+def open_explorer_dialog(str_var):
     str_var.set(filedialog.askopenfilename())
 
 
-def crear_exe(p_window, name, jar_route, icon_route, categorie):
+def create_desktop_launcher(p_window, name, jar_route, icon_route, category):
     if icon_route == '':
         base_route = os.path.abspath('.')
         icon_route = os.path.join(base_route, 'AutoJar.png')
     error = 0
-    if '' in (name, jar_route, categorie):
+    if '' in (name, jar_route, category):
         if name == '':
             error = 1
         elif jar_route == '':
             error = 2
-        elif categorie == '':
+        elif category == '':
             error = 3
-        abrir_ventana_alerta(parent_window=p_window, success=False, error_type=error)
+        open_alert_window(parent_window=p_window, success=False, error_type=error)
     else:
-        subprocess.run(['bash', 'crear_jar_icon.sh', jar_route, name, icon_route, categorie])
-        abrir_ventana_alerta(parent_window=p_window, success=True)
+        subprocess.run(['bash', 'crear_jar_icon.sh', jar_route, name, icon_route, category])
+        open_alert_window(parent_window=p_window, success=True)
 
 
-def traducir_categoria(categoria):
+def translate_category(category):
     categories_hashmap = {
         'Juego': 'Game',
         'Audio Video': 'AudioVideo',
@@ -112,10 +112,10 @@ def traducir_categoria(categoria):
         'Sistema': 'System',
         'Utilidad': 'Utility'
     }
-    return categories_hashmap[categoria]
+    return categories_hashmap[category]
 
 
-# esto tiene que ser una función porque sino el garbage collector decide matar la referencia a img = Image.open() (Bruh)
+# esto tiene que ser una función porque si no el garbage collector decide matar la referencia a img = Image.open() (Bruh)
 def set_icon():
     img = Image.open('AutoJar_desk.png')
     icon = ImageTk.PhotoImage(img)
@@ -142,7 +142,7 @@ window.wm_iconphoto(True, set_icon())
 # -----------------------------------------other_variables------------------------------------------------
 
 
-categorias = ["Juego", "Audio Video", "Audio", "Video", "Educación", "Desarrollo", "Gráficos", "Redes",
+categories_spanish = ["Juego", "Audio Video", "Audio", "Video", "Educación", "Desarrollo", "Gráficos", "Redes",
               "Oficina", "Ciencia", "Configuraciones", "Sistema", "Utilidad"]
 # -----------------------------------------ttk_variables------------------------------------------------
 
@@ -152,26 +152,26 @@ str_route_icon = ttk.StringVar()
 str_route_jar = ttk.StringVar()
 str_name = ttk.StringVar()
 
-selection.set(categorias[0])
+selection.set(categories_spanish[0])
 
 input_frame = ttk.Frame(master=window)
 
 button_create = ttk.Button(master=input_frame, text='Crear executable', width=18, style='success',
-                           command=lambda: crear_exe(window, str_name.get(), str_route_jar.get(),
-                                                     str_route_icon.get(), traducir_categoria(selection.get())))
+                           command=lambda: create_desktop_launcher(window, str_name.get(), str_route_jar.get(),
+                                                                   str_route_icon.get(), translate_category(selection.get())))
 
 button_find = ttk.Button(master=input_frame, text='buscar ruta', width=17,
-                         command=lambda: abrir_explorador(str_route_jar))
+                         command=lambda: open_explorer_dialog(str_route_jar))
 
 button_find_icon = ttk.Button(master=input_frame, text='buscar ruta', width=17,
-                              command=lambda: abrir_explorador(str_route_icon))
+                              command=lambda: open_explorer_dialog(str_route_icon))
 
 # -----------------------------------------bootstrap widgets------------------------------------------------
 entry_route = ttk.Entry(master=input_frame, textvariable=str_route_jar, width=50)
 entry_name = ttk.Entry(master=input_frame, textvariable=str_name, width=50)
 entry_icon_route = ttk.Entry(master=input_frame, textvariable=str_route_icon, width=50)
 
-menu_categories = ttk.OptionMenu(input_frame, selection, *categorias)
+menu_categories = ttk.OptionMenu(input_frame, selection, *categories_spanish)
 menu_categories.configure(width=14)
 
 style = ttk.Style()
@@ -191,7 +191,7 @@ label_icon.grid(row=3, column=0)
 label_cat.grid(row=4, column=0)
 label_selected_cat.grid(row=4, column=1)
 
-# entrys
+# entry's
 entry_name.grid(row=1, column=1, pady=2)
 entry_route.grid(row=2, column=1, pady=2)
 entry_icon_route.grid(row=3, column=1, pady=2)
